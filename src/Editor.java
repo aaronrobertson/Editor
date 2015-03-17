@@ -23,6 +23,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -35,9 +36,11 @@ public class Editor extends JFrame implements ActionListener, DocumentListener {
 	}
 	
 	public JEditorPane textPane;
+        private JLabel statusBar;
 	private JMenuBar menu;
 	private JMenuItem copy, paste, cut;
 	public boolean changed = false;
+        public int lineNumber = 0;
 	private File file;	
 	
 	public Editor() {
@@ -46,6 +49,10 @@ public class Editor extends JFrame implements ActionListener, DocumentListener {
 		add(new JScrollPane(textPane), BorderLayout.CENTER);
 		textPane.getDocument().addDocumentListener(this);
 		
+                statusBar = new JLabel();
+                add(statusBar, BorderLayout.SOUTH);
+                buildStatusBar();
+                
 		menu = new JMenuBar();
 		setJMenuBar(menu);
 		buildMenu();		
@@ -55,6 +62,10 @@ public class Editor extends JFrame implements ActionListener, DocumentListener {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
+        private void buildStatusBar() {
+            statusBar.setText("Line: "+lineNumber+"    File Size:");
+        }
+        
 	private void buildMenu() {		
 		buildFileMenu();
 		buildEditMenu();
