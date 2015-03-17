@@ -63,6 +63,7 @@ public class Editor extends JFrame implements ActionListener, DocumentListener {
 	}
 	
         private void buildStatusBar() {
+            lineNumber = textPane.getCaretPosition();
             statusBar.setText("Line: "+lineNumber+"    File Size:");
         }
         
@@ -265,16 +266,19 @@ public class Editor extends JFrame implements ActionListener, DocumentListener {
 	@Override
 	public void insertUpdate(DocumentEvent e) {
 		changed = true;
+                buildStatusBar();
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
 		changed = true;
+                buildStatusBar();
 	}
 
 	@Override
 	public void changedUpdate(DocumentEvent e) {
 		changed = true;
+                buildStatusBar();
 	}
 
 }
