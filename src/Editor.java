@@ -26,10 +26,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.event.UndoableEditListener;
+import java.util.Stack;
+import javax.swing.event.UndoableEditEvent;
 
-
-public class Editor extends JFrame implements ActionListener, DocumentListener {
+public class Editor extends JFrame implements ActionListener, UndoableEditListener {
 
 	public static void main(String[] args) {
 		new Editor();
@@ -38,17 +39,20 @@ public class Editor extends JFrame implements ActionListener, DocumentListener {
 	public JEditorPane textPane;
         private JLabel statusBar;
 	private JMenuBar menu;
-	private JMenuItem copy, paste, cut;
+	private JMenuItem copy, paste, cut, undo, redo;
 	public boolean changed = false;
         public int lineNumber = 0;
-	private File file;	
+	private File file;
+        private Stack history = new Stack();
+        private Stack future = new Stack();
 	
 	public Editor() {
 		super("Editor");
 		textPane = new JEditorPane();
 		add(new JScrollPane(textPane), BorderLayout.CENTER);
-		textPane.getDocument().addDocumentListener(this);
+		textPane.getDocument().addUndoableEditListener(this);
 		
+                
                 statusBar = new JLabel();
                 add(statusBar, BorderLayout.SOUTH);
                 buildStatusBar();
@@ -105,7 +109,19 @@ public class Editor extends JFrame implements ActionListener, DocumentListener {
 	private void buildEditMenu() {		
 		JMenu edit = new JMenu("Edit");
 		menu.add(edit);
-		edit.setMnemonic('E');		
+		edit.setMnemonic('E');
+                //undo
+                undo = new JMenuItem("Undo");
+		undo.addActionListener(this);
+		undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+		undo.setMnemonic('Z');
+		edit.add(undo);
+                //redo
+                redo = new JMenuItem("Redo");
+		redo.addActionListener(this);
+		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
+		redo.setMnemonic('Y');
+		edit.add(redo);
 		//cut
 		cut = new JMenuItem("Cut");
 		cut.addActionListener(this);
@@ -144,6 +160,10 @@ public class Editor extends JFrame implements ActionListener, DocumentListener {
 		if( action.equals("Quit") ) {
 			System.exit(0);
 		}
+                else if(action.equals("Undo")) {
+                }
+                else if(action.equals("Redo")) {
+                }
 		else if(action.equals("Open")) {			
 			loadFile();
 		}
@@ -263,22 +283,11 @@ public class Editor extends JFrame implements ActionListener, DocumentListener {
 		}
 	}
 
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-		changed = true;
+        @Override
+        public void undoableEditHappened(UndoableEditEvent e) {
+            System.out.println("update: "+ e.getEdit());
+                history.push(e);
+                changed = true;
                 buildStatusBar();
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		changed = true;
-                buildStatusBar();
-	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		changed = true;
-                buildStatusBar();
-	}
-
+        }
 }
